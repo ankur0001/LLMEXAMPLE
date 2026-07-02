@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProjectMind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <strong>ProjectMind</strong>
+          <span>AI memory for code</span>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <button class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-tab="ask">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Ask AI
+        </button>
+        <button class="nav-item" data-tab="graph">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="18" cy="6" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="18" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 7l4 9M16 7l-4 9" stroke="currentColor" stroke-width="1.5"/></svg>
+          Graph
+        </button>
+        <button class="nav-item" data-tab="actions">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Actions
+        </button>
+        <button class="nav-item" data-tab="history">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          History
+        </button>
+        <button class="nav-item" data-tab="docs">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="1.5"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Docs
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </button>
+        <a href="/swagger-ui.html" class="link-muted" target="_blank" rel="noopener">API docs</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="repo-input-group">
+          <label for="repoPath">Repository path</label>
+          <div class="repo-input-row">
+            <input type="text" id="repoPath" placeholder="/path/to/your/project" spellcheck="false">
+            <button class="btn btn-secondary" id="refreshBtn" title="Reload status and stats (does not scan)">Refresh</button>
+            <button class="btn btn-primary" id="scanBtn" data-action="scan" title="Scan repository and build memory">Scan</button>
+          </div>
+        </div>
+        <div class="status-pill" id="statusPill">
+          <span class="status-dot"></span>
+          <span id="statusText">Not loaded</span>
+        </div>
+      </header>
+
+      <!-- Dashboard -->
+      <section class="panel active" id="panel-dashboard">
+        <div class="panel-header">
+          <h1>Dashboard</h1>
+          <p>Overview of your repository memory and plugins</p>
+        </div>
+        <div class="scan-banner" id="notScannedBanner" hidden>
+          <div>
+            <strong>Repository not scanned yet</strong>
+            <p>No memory found at <code id="notScannedPath"></code>. Click Scan to index files, build the graph, and enable Ask AI.</p>
+          </div>
+          <button class="btn btn-primary" type="button" data-action="scan">Scan repository</button>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-label">Status</div>
+            <div class="stat-value">—</div>
+            <div class="stat-sub">Enter a repository path above to begin</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>Quick actions</h2>
+          </div>
+          <div class="quick-actions">
+            <button class="action-chip" data-action="scan">Scan repository</button>
+            <button class="action-chip" data-action="update">Update changes</button>
+            <button class="action-chip" data-action="ask-tab">Ask a question</button>
+            <button class="action-chip" data-action="docs-tab">View docs</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>Plugins</h2>
+          </div>
+          <div class="plugin-list" id="pluginList"></div>
+        </div>
+      </section>
+
+      <!-- Ask AI -->
+      <section class="panel" id="panel-ask">
+        <div class="panel-header">
+          <h1>Ask AI</h1>
+          <p>Ask questions about your codebase using local Ollama + saved memory</p>
+        </div>
+        <div class="chat-container">
+          <div class="ask-toolbar">
+            <label class="model-select-label" for="modelSelect">Ollama model</label>
+            <select id="modelSelect" aria-label="Ollama model">
+              <option value="">Auto — pick first available</option>
+            </select>
+            <button type="button" class="btn btn-ghost btn-sm" id="refreshModelsBtn" title="Refresh model list">↻</button>
+            <span class="model-status" id="modelStatus"></span>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-welcome">
+              <div class="chat-welcome-icon">✦</div>
+              <h3>What would you like to know?</h3>
+              <p>Try: "How does authentication work?" or "Where are the REST controllers?"</p>
+            </div>
+          </div>
+          <form class="chat-input-row" id="askForm">
+            <input type="text" id="questionInput" placeholder="Ask about your repository..." autocomplete="off">
+            <button type="submit" class="btn btn-primary" id="askBtn">Send</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Graph -->
+      <section class="panel" id="panel-graph">
+        <div class="panel-header row">
+          <div>
+            <h1>Knowledge Graph</h1>
+            <p>Visual map of classes, services, and dependencies</p>
+          </div>
+          <div class="graph-controls">
+            <label>Depth
+              <input type="range" id="graphDepth" min="1" max="5" value="2">
+              <span id="graphDepthVal">2</span>
+            </label>
+            <button class="btn btn-secondary" id="graphRefreshBtn">Render graph</button>
+          </div>
+        </div>
+        <div class="card graph-card">
+          <div id="graphContainer" class="graph-container">
+            <p class="empty-state">Scan a repository first, then render the graph.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <section class="panel" id="panel-actions">
+        <div class="panel-header">
+          <h1>Actions</h1>
+          <p>Scan, update, export, and manage repository memory</p>
+        </div>
+        <div class="action-grid">
+          <div class="action-card">
+            <h3>Scan</h3>
+            <p>Full repository scan — builds .ai-memory with graph, vectors, and summaries.</p>
+            <button class="btn btn-primary" data-action="scan">Start scan</button>
+          </div>
+          <div class="action-card">
+            <h3>Resume</h3>
+            <p>Continue an interrupted scan from the last checkpoint.</p>
+            <button class="btn btn-secondary" data-action="resume">Resume scan</button>
+          </div>
+          <div class="action-card">
+            <h3>Update</h3>
+            <p>Incremental update — only changed files are re-processed.</p>
+            <button class="btn btn-secondary" data-action="update">Run update</button>
+          </div>
+          <div class="action-card">
+            <h3>Generate docs</h3>
+            <p>Create an HTML documentation site inside .ai-memory/documentation/.</p>
+            <button class="btn btn-secondary" data-action="docs">Generate docs</button>
+          </div>
+          <div class="action-card">
+            <h3>Export memory</h3>
+            <p>Export .ai-memory bundle to a directory.</p>
+            <div class="inline-input">
+              <input type="text" id="exportDir" placeholder="Output directory (optional)">
+              <button class="btn btn-secondary" data-action="export">Export</button>
+            </div>
+          </div>
+          <div class="action-card danger">
+            <h3>Maintenance</h3>
+            <p>Clear cache or delete all persisted memory for this repo.</p>
+            <div class="btn-row">
+              <button class="btn btn-ghost" data-action="clear-cache">Clear cache</button>
+              <button class="btn btn-danger" data-action="clean">Delete memory</button>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="actionResult" hidden>
+          <div class="card-header"><h2>Last result</h2></div>
+          <pre id="actionResultBody"></pre>
+        </div>
+      </section>
+
+      <!-- History -->
+      <section class="panel" id="panel-history">
+        <div class="panel-header">
+          <h1>History</h1>
+          <p>Recent scan and update snapshots</p>
+        </div>
+        <div class="timeline" id="historyTimeline">
+          <p class="empty-state">No history yet. Scan or update a repository to see changes.</p>
+        </div>
+      </section>
+
+      <!-- Docs -->
+      <section class="panel" id="panel-docs">
+        <div class="panel-header row">
+          <div>
+            <h1>Documentation</h1>
+            <p>Generated HTML documentation site for your repository</p>
+          </div>
+          <button class="btn btn-primary" data-action="docs">Generate docs</button>
+        </div>
+        <div class="card docs-viewer-card">
+          <iframe id="docsFrame" title="Generated documentation" sandbox="allow-scripts allow-same-origin"></iframe>
+          <div class="docs-placeholder" id="docsPlaceholder">
+            <p>No documentation loaded yet.</p>
+            <button class="btn btn-secondary" data-action="docs-view">Load existing docs</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="overlay-card">
+      <div class="spinner"></div>
+      <p id="overlayMessage">Working...</p>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

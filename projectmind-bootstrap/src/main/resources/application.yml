@@ -1,0 +1,78 @@
+projectmind:
+  ollama:
+    base-url: http://localhost:11434
+    model: auto
+    embed-model: auto
+    timeout-seconds: 120
+    max-retries: 2
+  vector:
+    chroma-url: http://localhost:8000
+    backend: auto
+    chunk-size: 1500
+    chunk-overlap: 200
+    batch-size: 32
+  memory:
+    global-db: ~/.projectmind/projectmind.db
+    cache-enabled: true
+    cache-hot-size: 512
+  scan:
+    batch-size: 100
+    skip-dirs:
+      - .git
+      - target
+      - build
+      - node_modules
+      - dist
+      - out
+      - .ai-memory
+  docs:
+    output-dir: documentation
+  plugins:
+    enabled: true
+    auto-detect: true
+    include: []
+    exclude: []
+  performance:
+    scan-hash-concurrency: 0
+    parse-concurrency: 0
+    ollama-embed-concurrency: 4
+    summary-concurrency: 4
+    scan-checkpoint-interval: 5
+  api:
+    cors-allowed-origins:
+      - http://localhost:3000
+      - http://localhost:8080
+      - http://localhost:8081
+      - http://127.0.0.1:8080
+      - http://127.0.0.1:8081
+
+server:
+  port: 8081
+
+picocli:
+  spring:
+    enabled: false
+
+spring:
+  application:
+    name: projectmind
+
+springdoc:
+  api-docs:
+    path: /api/v1/openapi
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.projectmind: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

@@ -1,0 +1,36 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ProjectMind
+.ai-memory/
+*.db
+
+# Logs
+*.log
+
+# Build
+*.jar
+!**/src/main/**
+!**/src/test/**
+
+# Environment
+.env
+.env.local
