@@ -28,6 +28,7 @@ Thumbs.db
 
 # Build
 *.jar
+!Lib/**/*.jar
 !**/src/main/**
 !**/src/test/**
 

@@ -189,3 +189,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for coding standards and PR process.
 ## License
 
 MIT
+
+
+# One-time (while online) — refreshes Lib with test deps
+./scripts/populate-lib.sh
+
+# Offline build
+mvn -s .mvn/settings-offline.xml clean install
