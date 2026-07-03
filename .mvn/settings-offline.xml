@@ -3,7 +3,17 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
 
+    <!-- Relative to the directory you run mvn from; prefer scripts/build-offline.sh -->
     <localRepository>Lib</localRepository>
     <offline>true</offline>
+
+    <mirrors>
+        <!-- Prevent fallback to Maven Central when an artifact is missing locally -->
+        <mirror>
+            <id>offline-block-central</id>
+            <mirrorOf>central</mirrorOf>
+            <url>file:///dev/null</url>
+        </mirror>
+    </mirrors>
 
 </settings>

@@ -184,15 +184,22 @@ mvn clean install          # Build + run all tests
 mvn -pl projectmind-adapters test -Dtest=PerformanceBenchmarkTest  # Benchmarks
 ```
 
+### Offline build (air-gapped)
+
+All third-party JARs and Maven plugins are cached under `Lib/`. Populate once while online, then build without network:
+
+```bash
+# One-time (online) — downloads dependencies, plugins, and test artifacts into Lib/
+./scripts/populate-lib.sh
+
+# Offline build (always use the wrapper — sets absolute Lib path + offline mode)
+./scripts/build-offline.sh clean install
+```
+
+If you see `maven-install-plugin:3.1.4` missing, your `Lib/` was populated before Maven 3.9 plugin updates. Re-run `./scripts/sync-maven-plugins.sh` while online (or full `./scripts/populate-lib.sh`).
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for coding standards and PR process.
 
 ## License
 
 MIT
-
-
-# One-time (while online) — refreshes Lib with test deps
-./scripts/populate-lib.sh
-
-# Offline build
-mvn -s .mvn/settings-offline.xml clean install
