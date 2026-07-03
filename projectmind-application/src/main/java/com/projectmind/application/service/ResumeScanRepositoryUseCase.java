@@ -7,6 +7,7 @@ import com.projectmind.core.domain.RepositoryFile;
 import com.projectmind.core.domain.ScanStatus;
 import com.projectmind.core.port.ConfigurationPort;
 import com.projectmind.core.port.MemoryManagerPort;
+import com.projectmind.core.port.PostScanEnrichmentPort;
 import com.projectmind.core.port.RepositoryScannerPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,18 +28,21 @@ public class ResumeScanRepositoryUseCase {
     private final RepositoryGraphBuilder graphBuilder;
     private final RepositoryVectorIndexer vectorIndexer;
     private final ConfigurationPort configuration;
+    private final PostScanEnrichmentPort postScanEnrichment;
 
     public ResumeScanRepositoryUseCase(
             RepositoryScannerPort scanner,
             MemoryManagerPort memoryManager,
             RepositoryGraphBuilder graphBuilder,
             RepositoryVectorIndexer vectorIndexer,
-            ConfigurationPort configuration) {
+            ConfigurationPort configuration,
+            PostScanEnrichmentPort postScanEnrichment) {
         this.scanner = scanner;
         this.memoryManager = memoryManager;
         this.graphBuilder = graphBuilder;
         this.vectorIndexer = vectorIndexer;
         this.configuration = configuration;
+        this.postScanEnrichment = postScanEnrichment;
     }
 
     /**
@@ -77,6 +81,7 @@ public class ResumeScanRepositoryUseCase {
                 "resume",
                 completed.totalFiles(),
                 "Resumed repository scan completed"));
+        postScanEnrichment.scheduleAfterScan(repositoryPath);
         return completed;
     }
 }

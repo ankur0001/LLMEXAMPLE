@@ -127,6 +127,7 @@ public class TemplateDocumentationGenerator implements DocumentationGeneratorPor
             case CODE_QUALITY -> buildCodeQuality(ctx);
             case DEVELOPER_GUIDE -> buildDeveloperGuide(ctx);
             case GLOSSARY -> buildGlossary(ctx);
+            case SOURCE_FILES -> buildSourceFiles(ctx);
         };
         String mermaid = switch (type) {
             case DEPENDENCY_GRAPH -> knowledgeGraphPort.toMermaidDiagram(ctx.graph());
@@ -447,12 +448,47 @@ public class TemplateDocumentationGenerator implements DocumentationGeneratorPor
         sb.append("3. [Controllers](#controllers) → [Services](#services) → [Repositories](#repositories)\n");
         sb.append("4. [Configuration](#configuration)\n");
         sb.append("5. [Glossary](#glossary)\n\n");
+        sb.append("6. [Source files](#source-files)\n\n");
         sb.append("## Narrative\n\n");
         sb.append(narrativeOrFallback(
                 DocSectionType.DEVELOPER_GUIDE,
                 ctx,
                 "Start with the architecture overview, then explore layer-specific sections linked above."));
         return sb.toString();
+    }
+
+    private String buildSourceFiles(DocumentationContext ctx) {
+        var sb = new StringBuilder("# Source Files\n\n");
+        sb.append("Per-file understanding generated from indexed sources. ")
+                .append("Each entry summarizes purpose, key types, and responsibilities.\n\n");
+
+        Map<String, List<RepositoryFile>> grouped = ctx.index().files().stream()
+                .sorted(java.util.Comparator.comparing(file -> file.relativePath().toString()))
+                .collect(Collectors.groupingBy(
+                        file -> packageGroupFor(file),
+                        java.util.LinkedHashMap::new,
+                        Collectors.toList()));
+
+        for (Map.Entry<String, List<RepositoryFile>> entry : grouped.entrySet()) {
+            sb.append("## ").append(entry.getKey()).append("\n\n");
+            for (RepositoryFile file : entry.getValue()) {
+                sb.append("### `").append(file.relativePath()).append("`\n\n");
+                sb.append("- **Type:** ").append(file.fileType()).append('\n');
+                String summary = ctx.summaryFor(file.relativePath().toString());
+                if (!summary.isBlank()) {
+                    sb.append("- **Understanding:** ").append(summary).append("\n\n");
+                } else {
+                    sb.append("- **Understanding:** *Summary pending or not applicable for this file type.*\n\n");
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String packageGroupFor(RepositoryFile file) {
+        String path = file.relativePath().toString().replace('\\', '/');
+        int slash = path.lastIndexOf('/');
+        return slash > 0 ? path.substring(0, slash) : "(root)";
     }
 
     private String buildGlossary(DocumentationContext ctx) {

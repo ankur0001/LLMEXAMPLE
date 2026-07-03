@@ -9,6 +9,7 @@ import com.projectmind.application.service.ExportRepositoryUseCase;
 import com.projectmind.application.service.GenerateDocumentationUseCase;
 import com.projectmind.application.service.GraphQueryUseCase;
 import com.projectmind.application.service.MemoryOverviewUseCase;
+import com.projectmind.application.service.RepositoryEnrichmentUseCase;
 import com.projectmind.application.service.RepositoryStatusUseCase;
 import com.projectmind.application.service.ResumeScanRepositoryUseCase;
 import com.projectmind.application.service.ScanRepositoryUseCase;
@@ -87,6 +88,9 @@ class ProjectMindControllerTest {
 
     @MockBean
     private MemoryOverviewUseCase memoryOverviewUseCase;
+
+    @MockBean
+    private RepositoryEnrichmentUseCase enrichmentUseCase;
 
     @MockBean
     private MemoryManagerPort memoryManager;

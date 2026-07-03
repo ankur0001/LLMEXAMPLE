@@ -5,6 +5,7 @@ import com.projectmind.core.domain.ProgressCallback;
 import com.projectmind.core.domain.ProjectMetadata;
 import com.projectmind.core.port.ConfigurationPort;
 import com.projectmind.core.port.MemoryManagerPort;
+import com.projectmind.core.port.PostScanEnrichmentPort;
 import com.projectmind.core.port.RepositoryScannerPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,18 +26,21 @@ public class ScanRepositoryUseCase {
     private final RepositoryGraphBuilder graphBuilder;
     private final RepositoryVectorIndexer vectorIndexer;
     private final ConfigurationPort configuration;
+    private final PostScanEnrichmentPort postScanEnrichment;
 
     public ScanRepositoryUseCase(
             RepositoryScannerPort scanner,
             MemoryManagerPort memoryManager,
             RepositoryGraphBuilder graphBuilder,
             RepositoryVectorIndexer vectorIndexer,
-            ConfigurationPort configuration) {
+            ConfigurationPort configuration,
+            PostScanEnrichmentPort postScanEnrichment) {
         this.scanner = scanner;
         this.memoryManager = memoryManager;
         this.graphBuilder = graphBuilder;
         this.vectorIndexer = vectorIndexer;
         this.configuration = configuration;
+        this.postScanEnrichment = postScanEnrichment;
     }
 
     /**
@@ -57,6 +61,7 @@ public class ScanRepositoryUseCase {
                 "scan",
                 metadata.totalFiles(),
                 "Repository scan completed"));
+        postScanEnrichment.scheduleAfterScan(repositoryPath);
         return metadata;
     }
 }

@@ -6,6 +6,7 @@ import com.projectmind.application.service.ExportRepositoryUseCase;
 import com.projectmind.application.service.GenerateDocumentationUseCase;
 import com.projectmind.application.service.GraphQueryUseCase;
 import com.projectmind.application.service.MemoryOverviewUseCase;
+import com.projectmind.application.service.RepositoryEnrichmentUseCase;
 import com.projectmind.application.service.RepositoryStatusUseCase;
 import com.projectmind.application.service.ResumeScanRepositoryUseCase;
 import com.projectmind.application.service.ScanRepositoryUseCase;
@@ -17,13 +18,14 @@ import com.projectmind.core.domain.HistorySnapshot;
 import com.projectmind.core.domain.KnowledgeGraph;
 import com.projectmind.core.domain.MemoryOverview;
 import com.projectmind.core.domain.ProgressCallback;
+import com.projectmind.core.domain.EnrichmentMetadata;
 import com.projectmind.core.domain.ProjectMetadata;
 import com.projectmind.core.port.MemoryManagerPort;
 import com.projectmind.core.port.OllamaClientPort;
 import com.projectmind.core.port.PluginRegistryPort;
-import com.projectmind.core.path.RepositoryPathResolver;
 import com.projectmind.api.dto.AskRequest;
 import com.projectmind.api.dto.DocsResponse;
+import com.projectmind.api.dto.EnrichmentResponse;
 import com.projectmind.api.dto.ExportRequest;
 import com.projectmind.api.dto.ExportResponse;
 import com.projectmind.api.dto.PluginInfo;
@@ -69,6 +71,7 @@ public class ProjectMindController {
     private final RepositoryStatusUseCase statusUseCase;
     private final GraphQueryUseCase graphQueryUseCase;
     private final MemoryOverviewUseCase memoryOverviewUseCase;
+    private final RepositoryEnrichmentUseCase enrichmentUseCase;
     private final MemoryManagerPort memoryManager;
     private final PluginRegistryPort pluginRegistry;
     private final OllamaClientPort ollamaClient;
@@ -83,6 +86,7 @@ public class ProjectMindController {
             RepositoryStatusUseCase statusUseCase,
             GraphQueryUseCase graphQueryUseCase,
             MemoryOverviewUseCase memoryOverviewUseCase,
+            RepositoryEnrichmentUseCase enrichmentUseCase,
             MemoryManagerPort memoryManager,
             PluginRegistryPort pluginRegistry,
             OllamaClientPort ollamaClient) {
@@ -95,6 +99,7 @@ public class ProjectMindController {
         this.statusUseCase = statusUseCase;
         this.graphQueryUseCase = graphQueryUseCase;
         this.memoryOverviewUseCase = memoryOverviewUseCase;
+        this.enrichmentUseCase = enrichmentUseCase;
         this.memoryManager = memoryManager;
         this.pluginRegistry = pluginRegistry;
         this.ollamaClient = ollamaClient;
@@ -126,6 +131,27 @@ public class ProjectMindController {
         return statusUseCase.execute(repo(path))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/enrichment")
+    @Operation(summary = "Get post-scan documentation enrichment status")
+    public ResponseEntity<EnrichmentResponse> enrichment(@RequestParam String path) {
+        Path repositoryPath = repo(path);
+        if (memoryManager.loadMetadata(repositoryPath).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        ProjectMetadata metadata = memoryManager.loadMetadata(repositoryPath).orElseThrow();
+        var props = metadata.properties();
+        String status = props.getOrDefault(EnrichmentMetadata.STATUS, EnrichmentMetadata.Status.PENDING.name());
+        String message = props.getOrDefault(EnrichmentMetadata.MESSAGE, "");
+        String docsPath = props.get(EnrichmentMetadata.DOCS_PATH);
+        int filesSummarized = 0;
+        try {
+            filesSummarized = Integer.parseInt(props.getOrDefault(EnrichmentMetadata.FILES_SUMMARIZED, "0"));
+        } catch (NumberFormatException ignored) {
+            filesSummarized = 0;
+        }
+        return ResponseEntity.ok(new EnrichmentResponse(status, message, docsPath, filesSummarized));
     }
 
     @PostMapping("/scan")

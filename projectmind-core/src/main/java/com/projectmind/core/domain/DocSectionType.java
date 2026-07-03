@@ -24,5 +24,6 @@ public enum DocSectionType {
     SEQUENCE_DIAGRAMS,
     CODE_QUALITY,
     DEVELOPER_GUIDE,
-    GLOSSARY
+    GLOSSARY,
+    SOURCE_FILES
 }

@@ -5,6 +5,7 @@ import com.projectmind.core.domain.FileChangeSet;
 import com.projectmind.core.domain.FileSummary;
 import com.projectmind.core.domain.FileType;
 import com.projectmind.core.domain.RepositoryFile;
+import com.projectmind.core.domain.RepositoryIndex;
 import com.projectmind.core.port.ConfigurationPort;
 import com.projectmind.core.port.MemoryManagerPort;
 import com.projectmind.core.port.OllamaClientPort;
@@ -25,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 /**
- * Re-summarizes only added or modified files via Ollama.
+ * Generates per-file AI summaries via Ollama for documentation and search.
  */
 public class RepositorySummaryGenerator {
 
@@ -46,6 +47,22 @@ public class RepositorySummaryGenerator {
         this.ollamaClient = ollamaClient;
         this.memoryManager = memoryManager;
         this.configuration = configuration;
+    }
+
+    /**
+     * Summarizes every indexed file that does not already have a stored summary.
+     */
+    public int summarizeRepository(Path repositoryPath, RepositoryIndex index) {
+        List<RepositoryFile> pending = index.files().stream()
+                .filter(file -> SUMMARIZABLE_TYPES.contains(file.fileType()))
+                .filter(file -> memoryManager.loadSummary(
+                        repositoryPath, file.relativePath().toString()).isEmpty())
+                .toList();
+        if (pending.isEmpty()) {
+            return 0;
+        }
+        log.info("Summarizing {} file(s) for {}", pending.size(), repositoryPath);
+        return summarizeChanges(repositoryPath, FileChangeSet.allIndexedFiles(pending));
     }
 
     public int summarizeChanges(Path repositoryPath, FileChangeSet changes) {

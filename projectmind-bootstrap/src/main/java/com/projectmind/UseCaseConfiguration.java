@@ -6,6 +6,7 @@ import com.projectmind.application.service.GenerateDocumentationUseCase;
 import com.projectmind.application.service.GraphQueryUseCase;
 import com.projectmind.application.service.MemoryOverviewUseCase;
 import com.projectmind.application.service.PluginEnhancementService;
+import com.projectmind.application.service.RepositoryEnrichmentUseCase;
 import com.projectmind.application.service.RepositoryGraphBuilder;
 import com.projectmind.application.service.RepositorySummaryGenerator;
 import com.projectmind.application.service.RepositoryStatusUseCase;
@@ -22,6 +23,7 @@ import com.projectmind.core.port.LanguageParserPort;
 import com.projectmind.core.port.MemoryManagerPort;
 import com.projectmind.core.port.OllamaClientPort;
 import com.projectmind.core.port.PluginRegistryPort;
+import com.projectmind.core.port.PostScanEnrichmentPort;
 import com.projectmind.core.port.RepositoryScannerPort;
 import com.projectmind.core.port.VectorIndexPort;
 import org.springframework.context.annotation.Bean;
@@ -58,13 +60,28 @@ public class UseCaseConfiguration {
     }
 
     @Bean
+    PostScanEnrichmentPort postScanEnrichmentPort() {
+        return repositoryPath -> { };
+    }
+
+    @Bean
+    RepositoryEnrichmentUseCase repositoryEnrichmentUseCase(
+            MemoryManagerPort memoryManager,
+            RepositorySummaryGenerator summaryGenerator,
+            GenerateDocumentationUseCase documentationUseCase) {
+        return new RepositoryEnrichmentUseCase(memoryManager, summaryGenerator, documentationUseCase);
+    }
+
+    @Bean
     ScanRepositoryUseCase scanRepositoryUseCase(
             RepositoryScannerPort scanner,
             MemoryManagerPort memoryManager,
             RepositoryGraphBuilder graphBuilder,
             RepositoryVectorIndexer vectorIndexer,
-            ConfigurationPort configuration) {
-        return new ScanRepositoryUseCase(scanner, memoryManager, graphBuilder, vectorIndexer, configuration);
+            ConfigurationPort configuration,
+            PostScanEnrichmentPort postScanEnrichment) {
+        return new ScanRepositoryUseCase(
+                scanner, memoryManager, graphBuilder, vectorIndexer, configuration, postScanEnrichment);
     }
 
     @Bean
@@ -73,9 +90,10 @@ public class UseCaseConfiguration {
             MemoryManagerPort memoryManager,
             RepositoryGraphBuilder graphBuilder,
             RepositoryVectorIndexer vectorIndexer,
-            ConfigurationPort configuration) {
+            ConfigurationPort configuration,
+            PostScanEnrichmentPort postScanEnrichment) {
         return new ResumeScanRepositoryUseCase(
-                scanner, memoryManager, graphBuilder, vectorIndexer, configuration);
+                scanner, memoryManager, graphBuilder, vectorIndexer, configuration, postScanEnrichment);
     }
 
     @Bean

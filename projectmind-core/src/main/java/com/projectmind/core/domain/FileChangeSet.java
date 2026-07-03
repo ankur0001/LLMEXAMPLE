@@ -42,4 +42,9 @@ public record FileChangeSet(
                 .distinct()
                 .toList();
     }
+
+    /** Treat every indexed file as newly added (full-repository summarization). */
+    public static FileChangeSet allIndexedFiles(List<RepositoryFile> files) {
+        return new FileChangeSet(files != null ? files : List.of(), List.of(), List.of());
+    }
 }

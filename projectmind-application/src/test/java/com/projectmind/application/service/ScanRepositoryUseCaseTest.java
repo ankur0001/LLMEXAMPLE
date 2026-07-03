@@ -5,6 +5,7 @@ import com.projectmind.core.domain.RepositoryFile;
 import com.projectmind.core.domain.RepositoryIndex;
 import com.projectmind.core.domain.ScanStatus;
 import com.projectmind.core.port.MemoryManagerPort;
+import com.projectmind.core.port.PostScanEnrichmentPort;
 import com.projectmind.core.port.RepositoryScannerPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,9 @@ class ScanRepositoryUseCaseTest {
     @Mock
     com.projectmind.core.port.ConfigurationPort configuration;
 
+    @Mock
+    PostScanEnrichmentPort postScanEnrichment;
+
     @InjectMocks
     ScanRepositoryUseCase useCase;
 
@@ -67,6 +71,7 @@ class ScanRepositoryUseCaseTest {
         assertThat(indexCaptor.getValue().totalFiles()).isEqualTo(1);
         verify(graphBuilder).buildAndPersist(repoPath);
         verify(vectorIndexer).indexRepository(repoPath);
+        verify(postScanEnrichment).scheduleAfterScan(repoPath);
 
         ArgumentCaptor<com.projectmind.core.domain.ProjectMetadata> captor =
                 ArgumentCaptor.forClass(com.projectmind.core.domain.ProjectMetadata.class);

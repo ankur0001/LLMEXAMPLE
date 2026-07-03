@@ -494,6 +494,28 @@
 
   // ── Actions ──────────────────────────────────────────────────
 
+  async function pollEnrichment(path, { onProgress } = {}) {
+    const maxAttempts = 120;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const data = await apiGet(`/enrichment?path=${encodePath(path)}`);
+      if (onProgress) onProgress(data);
+
+      if (data?.status === 'READY') {
+        toast('Documentation ready!', 'success');
+        switchTab('docs');
+        loadDocsPreview();
+        return data;
+      }
+      if (data?.status === 'FAILED') {
+        toast(data.message || 'Documentation generation failed', 'error');
+        return data;
+      }
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    toast('Documentation is still generating — check Docs tab later', 'info');
+    return null;
+  }
+
   async function runAction(action) {
     const path = repoPath();
 
@@ -503,18 +525,20 @@
           apiPost('/scan', { path })
         );
         showActionResult(result);
-        toast('Scan complete!', 'success');
+        toast('Index complete — building documentation in background...', 'success');
         syncRepoPath(result?.repositoryPath);
         applyDashboard(result, null);
         await refreshDashboard();
+        pollEnrichment($('#repoPath').value.trim());
       },
       resume: async () => {
         const result = await withLoading('Resuming scan...', () =>
           apiPost('/resume', { path })
         );
         showActionResult(result);
-        toast('Scan resumed and completed', 'success');
+        toast('Scan resumed — building documentation in background...', 'success');
         await refreshDashboard();
+        pollEnrichment($('#repoPath').value.trim());
       },
       update: async () => {
         const result = await withLoading('Running incremental update...', () =>

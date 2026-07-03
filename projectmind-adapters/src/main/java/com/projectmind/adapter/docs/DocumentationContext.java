@@ -137,6 +137,8 @@ final class DocumentationContext {
         affected.add(DocSectionType.REPOSITORY_OVERVIEW);
         affected.add(DocSectionType.DEPENDENCY_GRAPH);
         affected.add(DocSectionType.GLOSSARY);
+        affected.add(DocSectionType.SOURCE_FILES);
+        affected.add(DocSectionType.CODE_QUALITY);
 
         String lower = changedFile.toLowerCase(Locale.ROOT);
         if (lower.endsWith(".java") || lower.endsWith(".kt")) {

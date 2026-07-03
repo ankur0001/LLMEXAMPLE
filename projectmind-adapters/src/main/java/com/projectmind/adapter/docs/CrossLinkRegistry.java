@@ -21,8 +21,9 @@ final class CrossLinkRegistry {
             Map.entry(DocSectionType.CONFIGURATION, "startup-flow|technology-stack"),
             Map.entry(DocSectionType.DEPENDENCY_GRAPH, "architecture|sequence-diagrams"),
             Map.entry(DocSectionType.SEQUENCE_DIAGRAMS, "controllers|services|repositories"),
-            Map.entry(DocSectionType.DEVELOPER_GUIDE, "repository-overview|architecture|glossary"),
-            Map.entry(DocSectionType.GLOSSARY, "architecture|developer-guide"));
+            Map.entry(DocSectionType.DEVELOPER_GUIDE, "repository-overview|architecture|glossary|source-files"),
+            Map.entry(DocSectionType.GLOSSARY, "architecture|developer-guide|source-files"),
+            Map.entry(DocSectionType.SOURCE_FILES, "repository-overview|architecture|developer-guide"));
 
     private CrossLinkRegistry() {
     }

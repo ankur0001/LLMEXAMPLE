@@ -50,7 +50,8 @@ class ScanRepositoryIntegrationTest {
                 memoryManager,
                 graphBuilder,
                 vectorIndexer,
-                testConfig);
+                testConfig,
+                path -> {});
     }
 
     @Test
